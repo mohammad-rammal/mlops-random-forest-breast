@@ -1,0 +1,26 @@
+name: Run CI on Pull Request to Main
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the repositary
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5.6.0
+        with:
+          python-version: "3.12.4"
+      - name: Install Dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r backend/requirements.txt
+      - name: Run Tests
+        run: |
+          cd ./backend
+          pytest

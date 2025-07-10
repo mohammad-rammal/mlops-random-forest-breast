@@ -1,0 +1,25 @@
+services:
+  backend:
+    build: ./backend
+    container_name: cancer-backend
+    ports:
+      - "8080:8000"
+    volumes:
+      - ./backend:/backend:ro
+      - ./data-storage:/data-storage:ro
+      - ./model-storage:/model-storage:ro
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    container_name: cancer-frontend
+    environment:
+      - BACKEND_URL=http://backend:8000
+    ports:
+      - "80:8501"
+    restart: unless-stopped
+
+volumes:
+  data-storage:
+
+  model-storage:
