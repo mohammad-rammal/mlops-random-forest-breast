@@ -9,31 +9,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout (Copying) repositary
         uses: actions/checkout@v4
-
-      - name: Build and start Docker services
+        
+      - name: Build Docker Images
         run: |
           docker compose up -d --build
 
-      - name: Wait for backend and mlflow to be healthy (simple wait)
+      - name: Start Docker Services
         run: |
-          echo "Waiting 30 seconds for services to be ready..."
-          sleep 30
+          docker compose up -d --wait
 
-      - name: Run backend tests inside container
+      - name: List Files in Frontend Container
         run: |
-          docker compose exec -e TESTING=1 backend pytest
+          docker compose exec -T frontend ls
+
+      - name: Run the tests
+        run: |
+          docker compose exec -T backend pytest
 
   cd:
     needs: ci
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout (Copying) repositary
         uses: actions/checkout@v4
 
-      - name: Copy files to EC2 server
+      - name: Copying Files to EC2
         uses: appleboy/scp-action@v1
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -43,7 +46,7 @@ jobs:
           source: "."
           target: "~/app"
 
-      - name: Install Docker on EC2 if needed
+      - name: Install Docker
         uses: appleboy/ssh-action@v1.0.1
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -52,14 +55,14 @@ jobs:
           port: ${{ secrets.EC2_PORT }}
           script: |
             if ! command -v docker >/dev/null 2>&1; then
-              curl -fsSL https://get.docker.com | sudo sh
+              curl -fsSl https://get.docker.com | sudo sh
               sudo apt-get install -y docker-compose-plugin
               sudo usermod -aG docker $USER
             else
               echo "Docker already installed"
             fi
 
-      - name: Restart Docker containers on EC2
+      - name: Run Containers on EC2
         uses: appleboy/ssh-action@v1.0.1
         with:
           host: ${{ secrets.EC2_HOST }}
