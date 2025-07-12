@@ -9,34 +9,30 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout (Copying) repositary
+      - name: Checkout repository
         uses: actions/checkout@v4
         
-      - name: Build Docker Images
+      - name: Build and start all Docker services
         run: |
-          docker compose up -d --build
+          docker compose up -d --build --wait
 
-      - name: Start Docker Services
+      - name: List files in frontend container
         run: |
-          docker compose up -d --wait
+          docker compose exec -T cancer-frontend ls /app || true
 
-      - name: List Files in Frontend Container
+      - name: Run tests in backend container
         run: |
-          docker compose exec -T frontend ls
-
-      - name: Run the tests
-        run: |
-          docker compose exec -T backend pytest
+          docker compose exec -T cancer-backend pytest
 
   cd:
     needs: ci
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout (Copying) repositary
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Copying Files to EC2
+      - name: Copy files to EC2
         uses: appleboy/scp-action@v1
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -46,7 +42,7 @@ jobs:
           source: "."
           target: "~/app"
 
-      - name: Install Docker
+      - name: Install Docker on EC2 (if missing)
         uses: appleboy/ssh-action@v1.0.1
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -55,14 +51,14 @@ jobs:
           port: ${{ secrets.EC2_PORT }}
           script: |
             if ! command -v docker >/dev/null 2>&1; then
-              curl -fsSl https://get.docker.com | sudo sh
+              curl -fsSL https://get.docker.com | sh
               sudo apt-get install -y docker-compose-plugin
               sudo usermod -aG docker $USER
             else
               echo "Docker already installed"
             fi
 
-      - name: Run Containers on EC2
+      - name: Deploy and start Docker containers on EC2
         uses: appleboy/ssh-action@v1.0.1
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -72,4 +68,4 @@ jobs:
           script: |
             cd ~/app
             docker compose down || true
-            docker compose up -d --build
+            docker compose up -d --build --wait
