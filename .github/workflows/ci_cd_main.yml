@@ -68,24 +68,6 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           port: ${{ secrets.EC2_PORT }}
           script: |
-            set -e
             cd ~/app
-
-            echo "🔄 Cleaning Docker cache..."
-            docker system prune -a -f --volumes || true
-            sudo apt-get clean
-
-            echo "💾 Setting up 2GB swap (if not already present)..."
-            if ! swapon --show | grep -q '/swapfile'; then
-              sudo fallocate -l 2G /swapfile
-              sudo chmod 600 /swapfile
-              sudo mkswap /swapfile
-              sudo swapon /swapfile
-              echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
-            else
-              echo "🌀 Swap already exists"
-            fi
-
-            echo "📦 Deploying containers..."
             docker compose --profile job down || true
             docker compose --profile job up -d --build
