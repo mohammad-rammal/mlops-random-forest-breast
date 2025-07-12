@@ -57,7 +57,7 @@ jobs:
               sudo apt-get install -y docker-compose-plugin
               sudo usermod -aG docker $USER
             else
-              echo "✅ Docker already installed"
+              echo "Docker already installed"
             fi
 
       - name: Run Containers on EC2
@@ -68,6 +68,18 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           port: ${{ secrets.EC2_PORT }}
           script: |
+            docker system prune -a -f --volumes
+            sudo apt-get clean
+            sudo rm -rf ~/.cache/pip
+    
+            if ! swapon --show | grep -q '/swapfile'; then
+              sudo fallocate -l 2G /swapfile
+              sudo chmod 600 /swapfile
+              sudo mkswap /swapfile
+              sudo swapon /swapfile
+              echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+            fi
+      
             cd ~/app
             docker compose --profile job down || true
             docker compose --profile job up -d --build
