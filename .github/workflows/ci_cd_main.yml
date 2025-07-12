@@ -71,5 +71,5 @@ jobs:
           port: ${{ secrets.EC2_PORT }}
           script: |
             cd ~/app
-            docker compose down || true
-            docker compose up -d --build
+            docker compose  --profile job down || true
+            docker compose  --profile job up -d --build
