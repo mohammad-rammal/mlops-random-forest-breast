@@ -14,11 +14,11 @@ jobs:
         
       - name: Build Docker Images
         run: |
-          docker compose up -d --build
+          docker compose --profile job up -d --build
 
       - name: Start Docker Services
         run: |
-          docker compose up -d --wait
+          docker compose --profile job up -d --wait
 
       - name: List Files in Frontend Container
         run: |
