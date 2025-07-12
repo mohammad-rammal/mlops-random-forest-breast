@@ -10,31 +10,28 @@ jobs:
     timeout-minutes: 60
 
     steps:
-      - name: Checkout (Copying) repositary
+      - name: Checkout (Copying) repository
         uses: actions/checkout@v4
-        
-      - name: Build Docker Images
-        run: |
-          docker compose --profile job up -d --build
 
-      - name: Start Docker Services
+      - name: Build and Start Docker Services
         run: |
-          docker compose --profile job up -d --wait
+          docker compose --profile job up -d --build --wait
 
       - name: List Files in Frontend Container
         run: |
-          docker compose --profile job exec -T frontend ls
+          docker compose exec -T frontend ls
 
       - name: Run the tests
         run: |
-          docker compose --profile job exec -T backend pytest
+          docker compose exec -T backend pytest
 
   cd:
     needs: ci
     runs-on: ubuntu-latest
+    timeout-minutes: 60
 
     steps:
-      - name: Checkout (Copying) repositary
+      - name: Checkout (Copying) repository
         uses: actions/checkout@v4
 
       - name: Copying Files to EC2
@@ -56,11 +53,11 @@ jobs:
           port: ${{ secrets.EC2_PORT }}
           script: |
             if ! command -v docker >/dev/null 2>&1; then
-              curl -fsSl https://get.docker.com | sudo sh
+              curl -fsSL https://get.docker.com | sudo sh
               sudo apt-get install -y docker-compose-plugin
               sudo usermod -aG docker $USER
             else
-              echo "Docker already installed"
+              echo "✅ Docker already installed"
             fi
 
       - name: Run Containers on EC2
@@ -71,8 +68,24 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           port: ${{ secrets.EC2_PORT }}
           script: |
+            set -e
             cd ~/app
-            docker system prune -a -f --volumes
+
+            echo "🔄 Cleaning Docker cache..."
+            docker system prune -a -f --volumes || true
             sudo apt-get clean
+
+            echo "💾 Setting up 2GB swap (if not already present)..."
+            if ! swapon --show | grep -q '/swapfile'; then
+              sudo fallocate -l 2G /swapfile
+              sudo chmod 600 /swapfile
+              sudo mkswap /swapfile
+              sudo swapon /swapfile
+              echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+            else
+              echo "🌀 Swap already exists"
+            fi
+
+            echo "📦 Deploying containers..."
             docker compose --profile job down || true
             docker compose --profile job up -d --build
