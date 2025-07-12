@@ -36,7 +36,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.markdown('<div class="main-title">🧬 Breast Cancer Prediction App</div>', unsafe_allow_html=True)
+st.markdown('<div class="main-title">🧬 Breast Cancer Prediction App - MLOps</div>', unsafe_allow_html=True)
 
 col1, col2 = st.columns(2)
 
