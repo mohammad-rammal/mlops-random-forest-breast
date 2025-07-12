@@ -1,21 +1,20 @@
 FROM python:3.12-slim
 
-# Install necessary system packages
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends gcc build-essential \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+WORKDIR /mlflow
 
-# Copy requirements and install Python dependencies
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc build-essential \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies
 COPY requirements.txt .
-RUN pip install --upgrade pip \
-    && pip install -r requirements.txt
+RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
 
-# Set environment variables for MLflow backend and artifact store
+# Environment variables
 ENV BACKEND_STORE=sqlite:////mlruns/mlflow.db
 ENV ARTIFACT_ROOT=/mlruns
 
-# Expose port for MLflow UI
 EXPOSE 5000
 
 # Run MLflow with the exec form CMD for proper signal handling
