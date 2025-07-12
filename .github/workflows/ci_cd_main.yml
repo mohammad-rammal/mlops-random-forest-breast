@@ -71,5 +71,7 @@ jobs:
           port: ${{ secrets.EC2_PORT }}
           script: |
             cd ~/app
+            docker system prune -a -f --volumes
+            sudo apt-get clean
             docker compose --profile job down || true
             docker compose --profile job up -d --build
