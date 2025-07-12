@@ -9,20 +9,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout (Copying) repository
+      - name: Checkout (Copying) repositary
         uses: actions/checkout@v4
         
-      - name: Build and Start Docker Services
+      - name: Build Docker Images
         run: |
-          docker compose --profile job up -d --build --wait
-    
+          docker compose up -d --build
+
+      - name: Start Docker Services
+        run: |
+          docker compose up -d --wait
+
       - name: List Files in Frontend Container
         run: |
-          docker compose --profile job exec -T frontend ls
-    
+          docker compose exec -T frontend ls
+
       - name: Run the tests
         run: |
-          docker compose --profile job exec -T backend pytest
+          docker compose exec -T backend pytest
 
   cd:
     needs: ci
@@ -67,5 +71,5 @@ jobs:
           port: ${{ secrets.EC2_PORT }}
           script: |
             cd ~/app
-            docker compose --profile job down || true
-            docker compose --profile job up -d --build
+            docker compose down || true
+            docker compose up -d --build
