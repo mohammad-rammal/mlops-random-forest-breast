@@ -6,3 +6,4 @@ uvicorn==0.35.0
 pytest==8.4.1
 httpx==0.28.1
 scikit-learn==1.7.0
+mlflow==3.1.1

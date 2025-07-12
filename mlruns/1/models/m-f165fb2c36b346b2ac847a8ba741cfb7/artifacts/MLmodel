@@ -1,0 +1,40 @@
+artifact_path: /mlruns/1/models/m-f165fb2c36b346b2ac847a8ba741cfb7/artifacts
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.12.11
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: pickle
+    sklearn_version: 1.7.0
+is_signature_from_type_hint: false
+mlflow_version: 3.1.1
+model_id: m-f165fb2c36b346b2ac847a8ba741cfb7
+model_size_bytes: 368138
+model_uuid: m-f165fb2c36b346b2ac847a8ba741cfb7
+prompts: null
+run_id: 3bd3a6ed64ea457ea09a1eaeea9b4e92
+saved_input_example_info:
+  artifact_path: input_example.json
+  pandas_orient: split
+  serving_input_path: serving_input_example.json
+  type: dataframe
+signature:
+  inputs: '[{"type": "double", "name": "Clump_Thickness", "required": true}, {"type":
+    "double", "name": "Cell_Size_Uniformity", "required": true}, {"type": "double",
+    "name": "Cell_Shape_Uniformity", "required": true}, {"type": "double", "name":
+    "Marginal_Adhesion", "required": true}, {"type": "double", "name": "Single_Epi_Cell_Size",
+    "required": true}, {"type": "double", "name": "Bare_Nuclei", "required": true},
+    {"type": "double", "name": "Bland_Chromatin", "required": true}, {"type": "double",
+    "name": "Normal_Nucleoli", "required": true}, {"type": "double", "name": "Mitoses",
+    "required": true}]'
+  outputs: '[{"type": "tensor", "tensor-spec": {"dtype": "int64", "shape": [-1]}}]'
+  params: null
+type_hint_from_example: false
+utc_time_created: '2025-07-12 12:33:41.621710'

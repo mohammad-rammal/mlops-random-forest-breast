@@ -4,10 +4,15 @@ services:
     container_name: cancer-backend
     ports:
       - "8080:8000"
+    depends_on:
+      mlflow:
+        condition: service_started
+      trainer:
+        condition: service_completed_successfully
     volumes:
-      - ./backend:/backend:ro
       - ./data-storage:/data-storage:ro
       - ./model-storage:/model-storage:ro
+      - ./mlruns:/mlruns
     restart: unless-stopped
 
   frontend:
@@ -15,11 +20,34 @@ services:
     container_name: cancer-frontend
     environment:
       - BACKEND_URL=http://backend:8000
+    depends_on:
+      backend:
+        condition: service_started
     ports:
       - "80:8501"
     restart: unless-stopped
 
+  mlflow:
+    build: ./mlflow
+    container_name: mlflow
+    ports:
+      - "5003:5000"
+    volumes:
+      - ./mlruns:/mlruns
+    restart: unless-stopped
+
+  trainer:
+    build: ./machine-learning
+    container_name: cancer-trainer
+    depends_on:
+      mlflow:
+        condition: service_started
+    volumes:
+      - ./data-storage:/data-storage:ro
+      - ./mlruns:/mlruns
+    profiles: ["job"]
+
 volumes:
   data-storage:
-
   model-storage:
+  mlruns:

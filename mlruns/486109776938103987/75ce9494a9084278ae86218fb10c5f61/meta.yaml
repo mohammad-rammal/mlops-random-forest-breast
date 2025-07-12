@@ -1,0 +1,14 @@
+artifact_uri: mlflow-artifacts:/486109776938103987/75ce9494a9084278ae86218fb10c5f61/artifacts
+end_time: 1752194320533
+entry_point_name: ''
+experiment_id: '486109776938103987'
+lifecycle_stage: active
+run_id: 75ce9494a9084278ae86218fb10c5f61
+run_name: randomForest_cv10Fold
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1752194301665
+status: 3
+tags: []
+user_id: WIMAX COMPUTECH
