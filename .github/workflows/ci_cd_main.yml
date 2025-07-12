@@ -11,18 +11,19 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        
-      - name: Build and start all Docker services
-        run: |
-          docker compose up -d --build --wait
 
-      - name: List files in frontend container
+      - name: Build and start Docker services
         run: |
-          docker compose exec -T cancer-frontend ls /app || true
+          docker compose up -d --build
 
-      - name: Run tests in backend container
+      - name: Wait for backend and mlflow to be healthy (simple wait)
         run: |
-          docker compose exec -T cancer-backend pytest
+          echo "Waiting 30 seconds for services to be ready..."
+          sleep 30
+
+      - name: Run backend tests inside container
+        run: |
+          docker compose exec -e TESTING=1 backend pytest
 
   cd:
     needs: ci
@@ -32,7 +33,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Copy files to EC2
+      - name: Copy files to EC2 server
         uses: appleboy/scp-action@v1
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -42,7 +43,7 @@ jobs:
           source: "."
           target: "~/app"
 
-      - name: Install Docker on EC2 (if missing)
+      - name: Install Docker on EC2 if needed
         uses: appleboy/ssh-action@v1.0.1
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -51,14 +52,14 @@ jobs:
           port: ${{ secrets.EC2_PORT }}
           script: |
             if ! command -v docker >/dev/null 2>&1; then
-              curl -fsSL https://get.docker.com | sh
+              curl -fsSL https://get.docker.com | sudo sh
               sudo apt-get install -y docker-compose-plugin
               sudo usermod -aG docker $USER
             else
               echo "Docker already installed"
             fi
 
-      - name: Deploy and start Docker containers on EC2
+      - name: Restart Docker containers on EC2
         uses: appleboy/ssh-action@v1.0.1
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -68,4 +69,4 @@ jobs:
           script: |
             cd ~/app
             docker compose down || true
-            docker compose up -d --build --wait
+            docker compose up -d --build
