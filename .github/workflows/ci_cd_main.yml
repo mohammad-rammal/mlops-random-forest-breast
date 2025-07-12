@@ -22,11 +22,11 @@ jobs:
 
       - name: List Files in Frontend Container
         run: |
-          docker compose  --profile job exec -T frontend ls
+          docker compose --profile job exec -T frontend ls
 
       - name: Run the tests
         run: |
-          docker compose  --profile job exec -T backend pytest
+          docker compose --profile job exec -T backend pytest
 
   cd:
     needs: ci
@@ -71,5 +71,5 @@ jobs:
           port: ${{ secrets.EC2_PORT }}
           script: |
             cd ~/app
-            docker compose  --profile job down || true
-            docker compose  --profile job up -d --build
+            docker compose --profile job down || true
+            docker compose --profile job up -d --build
