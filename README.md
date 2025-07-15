@@ -1,4 +1,4 @@
-# Ops Random Forest Breast Cancer Classifier
+# MLOps Random Forest Breast Cancer Classifier
 
 A machine learning project for breast cancer classification using the Random Forest algorithm. This project demonstrates data preprocessing, model training, evaluation, and deployment best practices for a binary classification problem in healthcare.
 
